@@ -16,10 +16,10 @@
         overflow: hidden;
     }
 
-    /* Center content */
+    /* Center Text Content */
     .content {
         position: relative;
-        z-index: 2;
+        z-index: 5;
         height: 100%;
         width: 100%;
         display: flex;
@@ -28,10 +28,17 @@
         text-align: center;
     }
 
+    .title-wrap {
+        position: relative;
+        display: inline-block;
+        padding: 10px 25px;
+    }
+
     .title {
         font-size: 56px;
         font-weight: 700;
         margin-bottom: 10px;
+        white-space: nowrap;
     }
 
     .subtitle {
@@ -45,148 +52,291 @@
         letter-spacing: 4px;
     }
 
-    /* Retro lights border */
-    .lights {
+    /* GARLAND LIGHTS LAYER */
+    .lights-layer {
         position: absolute;
         inset: 0;
         pointer-events: none;
+        z-index: 2;
+    }
+
+    .garland-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         z-index: 1;
     }
 
-    .light-row,
-    .light-col {
+    .garland-path {
+        fill: none;
+        stroke: #3d1a20;
+        stroke-width: 3;
+        stroke-linecap: round;
+        opacity: 0.8;
+    }
+
+    .bulbs-row,
+    .bulbs-col {
         position: absolute;
         display: flex;
-        gap: 16px;
-    }
-
-    .light-row {
-        left: 40px;
-        right: 40px;
         justify-content: space-between;
     }
 
-    .light-row.top {
-        top: 15px;
+    .bulbs-row {
+        left: 8%;
+        right: 8%;
     }
 
-    .light-row.bottom {
-        bottom: 15px;
-        transform: rotate(180deg);
+    .bulbs-row.top {
+        top: 5%;
     }
 
-    .light-col {
-        top: 40px;
-        bottom: 40px;
+    .bulbs-row.bottom {
+        bottom: 5%;
+        transform: scaleY(-1);
+    }
+
+    .bulbs-col {
+        top: 10%;
+        bottom: 10%;
         flex-direction: column;
-        justify-content: space-between;
     }
 
-    .light-col.left {
-        left: 15px;
-        transform: rotate(-90deg);
+    .bulbs-col.left {
+        left: 4%;
     }
 
-    .light-col.right {
-        right: 15px;
-        transform: rotate(90deg);
+    .bulbs-col.right {
+        right: 4%;
     }
 
     .bulb {
-        width: 16px;
-        height: 26px;
-        border-radius: 50% 50% 45% 45%;
+        width: 24px;
+        height: 34px;
+        border-radius: 50% 50% 44% 44%;
         background: #ff4b4b;
-        box-shadow: 0 0 12px rgba(255, 75, 75, 0.9);
+        box-shadow: 0 0 4px rgba(0,0,0,0.5);
         transform-origin: top center;
-        animation: blink 1.4s infinite alternate, sway 1.6s infinite ease-in-out;
+        animation: flash 1.3s infinite ease-in-out, sway 2s infinite ease-in-out;
     }
 
-    /* Different colours + timings for retro feel */
     .bulb:nth-child(4n+1) {
-        background: #ff4b4b; /* red */
-        box-shadow: 0 0 14px rgba(255, 75, 75, 0.9);
-        animation-delay: 0s;
+        background: #ff4b4b;
+        animation-delay: 0s, 0s;
     }
     .bulb:nth-child(4n+2) {
-        background: #2ecc71; /* green */
-        box-shadow: 0 0 14px rgba(46, 204, 113, 0.9);
-        animation-delay: 0.3s;
+        background: #2ecc71;
+        animation-delay: 0.25s, 0.1s;
     }
     .bulb:nth-child(4n+3) {
-        background: #f1c40f; /* yellow */
-        box-shadow: 0 0 14px rgba(241, 196, 15, 0.9);
-        animation-delay: 0.6s;
+        background: #f1c40f;
+        animation-delay: 0.5s, 0.2s;
     }
     .bulb:nth-child(4n+4) {
-        background: #3498db; /* blue */
-        box-shadow: 0 0 14px rgba(52, 152, 219, 0.9);
-        animation-delay: 0.9s;
+        background: #3498db;
+        animation-delay: 0.75s, 0.3s;
     }
 
-    @keyframes blink {
-        0%   { opacity: 0.3; filter: brightness(0.7); }
-        50%  { opacity: 1;   filter: brightness(1.3); }
-        100% { opacity: 0.5; filter: brightness(1); }
+    @keyframes flash {
+        0%, 100% {
+            opacity: 0.25;
+            filter: brightness(0.7);
+            box-shadow: 0 0 4px rgba(0,0,0,0.4);
+        }
+        50% {
+            opacity: 1;
+            filter: brightness(1.9);
+            box-shadow: 0 0 22px currentColor, 0 0 40px currentColor;
+        }
     }
 
     @keyframes sway {
-        0%   { transform: rotate(-4deg); }
-        50%  { transform: rotate(4deg); }
-        100% { transform: rotate(-3deg); }
+        0%   { transform: rotate(-6deg); }
+        50%  { transform: rotate(5deg); }
+        100% { transform: rotate(-4deg); }
+    }
+
+    /* FALLING SNOW */
+    .snow-layer {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    .flake {
+        position: absolute;
+        top: -10px;
+        font-size: 14px;
+        color: #ffffff;
+        opacity: 0.75;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        0%   { transform: translateY(-10vh); }
+        100% { transform: translateY(110vh); }
+    }
+
+    /* TWINKLING STARS */
+    .stars-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 4;
+    }
+
+    .star {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 60%);
+        border-radius: 50%;
+        opacity: 0.4;
+        animation: twinkle 2.2s infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.1; transform: scale(0.7); }
+        50%      { opacity: 1;   transform: scale(1.4); }
+    }
+
+    /* MOVING EMOJIS (Santa & Trees) */
+    .float-emoji {
+        position: absolute;
+        font-size: 46px;
+        z-index: 6;
+        pointer-events: none;
+    }
+
+    .tree1 {
+        top: 15%;
+        left: 5%;
+        animation: floatTree1 18s linear infinite;
+    }
+    .tree2 {
+        top: 65%;
+        left: 80%;
+        animation: floatTree2 22s linear infinite;
+    }
+    .santa1 {
+        top: 70%;
+        left: 10%;
+        animation: floatSanta1 20s linear infinite;
+    }
+    .santa2 {
+        top: 20%;
+        left: 75%;
+        animation: floatSanta2 24s linear infinite;
+    }
+
+    @keyframes floatTree1 {
+        0%   { transform: translate(0, 0); }
+        25%  { transform: translate(15vw, 5vh); }
+        50%  { transform: translate(25vw, 20vh); }
+        75%  { transform: translate(10vw, 30vh); }
+        100% { transform: translate(0, 0); }
+    }
+
+    @keyframes floatTree2 {
+        0%   { transform: translate(0, 0); }
+        25%  { transform: translate(-10vw, -10vh); }
+        50%  { transform: translate(-20vw, -25vh); }
+        75%  { transform: translate(-5vw, -35vh); }
+        100% { transform: translate(0, 0); }
+    }
+
+    @keyframes floatSanta1 {
+        0%   { transform: translate(0, 0); }
+        25%  { transform: translate(15vw, -10vh); }
+        50%  { transform: translate(30vw, -5vh); }
+        75%  { transform: translate(20vw, 10vh); }
+        100% { transform: translate(0, 0); }
+    }
+
+    @keyframes floatSanta2 {
+        0%   { transform: translate(0, 0); }
+        25%  { transform: translate(-10vw, 10vh); }
+        50%  { transform: translate(-25vw, 5vh); }
+        75%  { transform: translate(-15vw, -10vh); }
+        100% { transform: translate(0, 0); }
     }
 </style>
 </head>
 
 <body>
 
-<div class="lights">
-    <!-- Top row -->
-    <div class="light-row top">
-        <!-- adjust number of bulbs as you like -->
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+<!-- Garland wires using SVG for nice curves -->
+<svg class="garland-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path class="garland-path" d="M 5 10 Q 25 0, 50 10 T 95 10" />
+    <path class="garland-path" d="M 5 90 Q 25 100, 50 90 T 95 90" />
+    <path class="garland-path" d="M 8 10 Q 0 35, 8 60 Q 16 80, 8 92" />
+    <path class="garland-path" d="M 92 10 Q 100 35, 92 60 Q 84 80, 92 92" />
+</svg>
+
+<div class="lights-layer">
+    <div class="bulbs-row top">
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
     </div>
 
-    <!-- Bottom row -->
-    <div class="light-row bottom">
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <div class="bulbs-row bottom">
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
     </div>
 
-    <!-- Left column -->
-    <div class="light-col left">
+    <div class="bulbs-col left">
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+        <span class="bulb"></span><span class="bulb"></span>
     </div>
 
-    <!-- Right column -->
-    <div class="light-col right">
+    <div class="bulbs-col right">
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
         <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+        <span class="bulb"></span><span class="bulb"></span>
     </div>
 </div>
 
+<!-- Falling snow -->
+<div class="snow-layer" id="snow"></div>
+
+<!-- Twinkling stars -->
+<div class="stars-layer">
+    <div class="star" style="top:12%; left:38%; animation-delay:0s;"></div>
+    <div class="star" style="top:18%; left:62%; animation-delay:0.7s;"></div>
+    <div class="star" style="top:8%;  left:52%; animation-delay:1.3s;"></div>
+    <div class="star" style="top:22%; left:30%; animation-delay:1.9s;"></div>
+    <div class="star" style="top:25%; left:70%; animation-delay:2.4s;"></div>
+</div>
+
+<!-- Floating emojis -->
+<div class="float-emoji tree1">🎄</div>
+<div class="float-emoji tree2">🎄</div>
+<div class="float-emoji santa1">🎅</div>
+<div class="float-emoji santa2">🎅</div>
+
+<!-- Main content -->
 <div class="content">
     <div>
-        <div class="title">🎄 NSDL Christmas Party 🎅</div>
+        <div class="title-wrap">
+            <div class="title">NSDL Christmas Party</div>
+        </div>
         <div class="subtitle">Cibaria Manly • 5 December • 6:00 pm</div>
         <div class="countdown" id="cd">Loading…</div>
     </div>
 </div>
 
 <script>
+/* Countdown logic */
 function updateCountdown() {
-    // Target: 5 December 2025, 6pm (18:00)
-    var target = new Date(2025, 11, 5, 18, 0, 0).getTime(); // December = 11
+    var target = new Date(2025, 11, 5, 18, 0, 0).getTime(); // 5 Dec 2025, 6pm
     var now = new Date().getTime();
     var diff = target - now;
 
@@ -206,6 +356,30 @@ function updateCountdown() {
 
 setInterval(updateCountdown, 1000);
 updateCountdown();
+
+/* Generate snowflakes */
+(function () {
+    var snowContainer = document.getElementById("snow");
+    var flakes = 70;
+
+    for (var i = 0; i < flakes; i++) {
+        var flake = document.createElement("div");
+        flake.className = "flake";
+        flake.textContent = "❄";
+
+        var size = 10 + Math.random() * 10;
+        var left = Math.random() * 100;
+        var duration = 8 + Math.random() * 10;
+        var delay = Math.random() * 10;
+
+        flake.style.fontSize = size + "px";
+        flake.style.left = left + "vw";
+        flake.style.animationDuration = duration + "s";
+        flake.style.animationDelay = delay + "s";
+
+        snowContainer.appendChild(flake);
+    }
+})();
 </script>
 
 </body>
