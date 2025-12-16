@@ -1,385 +1,649 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>NSDL Christmas Party Countdown</title>
+  <meta charset="UTF-8" />
+  <title>Christmas Clinic Closure Countdown</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        background: #720e30;
-        color: #ffffff;
-        font-family: "Segoe UI", Arial, sans-serif;
-        overflow: hidden;
-    }
-
-    /* Center Text Content */
-    .content {
-        position: relative;
-        z-index: 5;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
+  <style>
+    :root{
+      --bg:#720e30;
+      --wire:#3d1a20;
+      --text:#ffffff;
+      --tree1:#0f4d2e;
+      --tree2:#0c3f26;
+      --trunk:#5a3b22;
+      --gold:#ffd27d;
     }
 
-    .title-wrap {
-        position: relative;
-        display: inline-block;
-        padding: 10px 25px;
+    html,body{
+      margin:0; padding:0; height:100%; width:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:"Segoe UI", Arial, sans-serif;
+      overflow:hidden;
     }
 
-    .title {
-        font-size: 56px;
-        font-weight: 700;
-        margin-bottom: 10px;
-        white-space: nowrap;
+    /* Layout */
+    .stage{ position:relative; height:100%; width:100%; }
+
+    .center{
+      position:relative;
+      z-index:5;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:0 18vw; /* leaves room for trees */
+      box-sizing:border-box;
     }
 
-    .subtitle {
-        font-size: 28px;
-        margin-bottom: 40px;
+    .card{ width:min(1100px, 100%); }
+
+    .title{
+      font-size:56px;
+      font-weight:800;
+      letter-spacing:0.5px;
+      margin:0 0 10px 0;
     }
 
-    .countdown {
-        font-size: 72px;
-        font-weight: 700;
-        letter-spacing: 4px;
+    .sub{
+      font-size:26px;
+      opacity:0.95;
+      margin:0 0 34px 0;
     }
 
-    /* GARLAND LIGHTS LAYER */
-    .lights-layer {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 2;
+    .countdown{
+      font-size:84px;
+      font-weight:900;
+      letter-spacing:3px;
+      margin:0 0 28px 0;
     }
 
-    .garland-svg {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
+    .christmasline{
+      position:absolute;
+      left:0; right:0;
+      bottom:18px;
+      z-index:6;
+      text-align:center;
+      font-size:42px;
+      opacity:0.95;
     }
 
-    .garland-path {
-        fill: none;
-        stroke: #3d1a20;
-        stroke-width: 3;
-        stroke-linecap: round;
-        opacity: 0.8;
+    /* Snow */
+    .snow-layer{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:3;
+      overflow:hidden;
+    }
+    .flake{
+      position:absolute;
+      top:-12px;
+      color:#fff;
+      opacity:0.75;
+      animation: fall linear infinite;
+      will-change: transform;
+    }
+    @keyframes fall{
+      0%   { transform: translateY(-10vh); }
+      100% { transform: translateY(115vh); }
     }
 
-    .bulbs-row,
-    .bulbs-col {
-        position: absolute;
-        display: flex;
-        justify-content: space-between;
+    /* Trees (left + right) */
+    .tree{
+      position:absolute;
+      bottom:0;
+      width:18vw;
+      min-width:220px;
+      max-width:340px;
+      height:78vh;
+      z-index:4;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+    }
+    .tree.left{ left:0; }
+    .tree.right{ right:0; transform: scaleX(-1); }
+
+    .tree-body{
+      position:relative;
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
     }
 
-    .bulbs-row {
-        left: 8%;
-        right: 8%;
+    .layer{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      width:85%;
+      height:22%;
+      background:var(--tree1);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      filter: drop-shadow(0 6px 0 rgba(0,0,0,0.08));
+    }
+    .layer.l1{ bottom:18%; width:90%; height:26%; background:var(--tree1); }
+    .layer.l2{ bottom:35%; width:78%; height:22%; background:var(--tree2); }
+    .layer.l3{ bottom:50%; width:66%; height:20%; background:var(--tree1); }
+    .layer.l4{ bottom:63%; width:52%; height:18%; background:var(--tree2); }
+    .layer.l5{ bottom:74%; width:38%; height:16%; background:var(--tree1); }
+
+    .trunk{
+      position:absolute;
+      bottom:0;
+      width:18%;
+      height:18%;
+      background:var(--trunk);
+      border-radius:10px 10px 0 0;
+      filter: drop-shadow(0 6px 0 rgba(0,0,0,0.10));
     }
 
-    .bulbs-row.top {
-        top: 5%;
+    .star{
+      position:absolute;
+      top:6%;
+      left:50%;
+      transform:translateX(-50%);
+      width:48px;
+      height:48px;
+      z-index:7;
+      filter: drop-shadow(0 0 12px rgba(255,210,125,0.65));
+      animation: starPulse 1.8s infinite ease-in-out;
+    }
+    @keyframes starPulse{
+      0%,100%{ transform:translateX(-50%) scale(1); opacity:0.85; }
+      50%    { transform:translateX(-50%) scale(1.12); opacity:1; }
     }
 
-    .bulbs-row.bottom {
-        bottom: 5%;
-        transform: scaleY(-1);
+    .garland{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      width:86%;
+      height:70%;
+      bottom:16%;
+      z-index:6;
+      pointer-events:none;
+    }
+    .garland svg{ width:100%; height:100%; }
+    .garland path{
+      fill:none;
+      stroke:var(--wire);
+      stroke-width:3;
+      opacity:0.85;
+      stroke-linecap:round;
     }
 
-    .bulbs-col {
-        top: 10%;
-        bottom: 10%;
-        flex-direction: column;
+    .bulbs{ position:absolute; inset:0; }
+
+    .bulb{
+      position:absolute;
+      width:18px;
+      height:26px;
+      border-radius: 50% 50% 44% 44%;
+      animation: flash 1.15s infinite ease-in-out, sway 2.4s infinite ease-in-out;
+      transform-origin: top center;
+      box-shadow: 0 0 6px rgba(0,0,0,0.35);
     }
 
-    .bulbs-col.left {
-        left: 4%;
+    @keyframes flash{
+      0%,100%{ opacity:0.25; filter:brightness(0.85); box-shadow:0 0 4px rgba(0,0,0,0.35); }
+      50%    { opacity:1; filter:brightness(2.0); box-shadow:0 0 22px currentColor, 0 0 42px currentColor; }
+    }
+    @keyframes sway{
+      0%{ transform:rotate(-6deg); }
+      50%{ transform:rotate(5deg); }
+      100%{ transform:rotate(-4deg); }
     }
 
-    .bulbs-col.right {
-        right: 4%;
+    .c1{ background:#ff4b4b; color:#ff4b4b; }
+    .c2{ background:#2ecc71; color:#2ecc71; }
+    .c3{ background:#f1c40f; color:#f1c40f; }
+    .c4{ background:#3498db; color:#3498db; }
+
+    /* Background twinkles */
+    .twinkles{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:2;
+    }
+    .twinkle{
+      position:absolute;
+      width:8px; height:8px;
+      border-radius:50%;
+      background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 60%);
+      opacity:0.2;
+      animation: twinkle 2.4s infinite ease-in-out;
+    }
+    @keyframes twinkle{
+      0%,100%{ opacity:0.08; transform:scale(0.7); }
+      50%    { opacity:0.9;  transform:scale(1.4); }
     }
 
-    .bulb {
-        width: 24px;
-        height: 34px;
-        border-radius: 50% 50% 44% 44%;
-        background: #ff4b4b;
-        box-shadow: 0 0 4px rgba(0,0,0,0.5);
-        transform-origin: top center;
-        animation: flash 1.3s infinite ease-in-out, sway 2s infinite ease-in-out;
+    /* --- Santa flyby: top L->R then bottom R->L repeatedly --- */
+    .flyby{
+      position:absolute;
+      z-index:7;
+      width:420px;
+      max-width:45vw;
+      opacity:0.98;
+      pointer-events:none;
+      left:-40%;
+      top:10%;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
     }
 
-    .bulb:nth-child(4n+1) {
-        background: #ff4b4b;
-        animation-delay: 0s, 0s;
-    }
-    .bulb:nth-child(4n+2) {
-        background: #2ecc71;
-        animation-delay: 0.25s, 0.1s;
-    }
-    .bulb:nth-child(4n+3) {
-        background: #f1c40f;
-        animation-delay: 0.5s, 0.2s;
-    }
-    .bulb:nth-child(4n+4) {
-        background: #3498db;
-        animation-delay: 0.75s, 0.3s;
+    @keyframes flyTopLR{
+      0%   { transform: translateX(-10vw) translateY(0) scale(1); opacity:0; }
+      8%   { opacity:1; }
+      50%  { transform: translateX(70vw) translateY(-2vh) scale(1.02); }
+      92%  { opacity:1; }
+      100% { transform: translateX(140vw) translateY(0) scale(1); opacity:0; }
     }
 
-    @keyframes flash {
-        0%, 100% {
-            opacity: 0.25;
-            filter: brightness(0.7);
-            box-shadow: 0 0 4px rgba(0,0,0,0.4);
-        }
-        50% {
-            opacity: 1;
-            filter: brightness(1.9);
-            box-shadow: 0 0 22px currentColor, 0 0 40px currentColor;
-        }
+    @keyframes flyBottomRL{
+      0%   { transform: translateX(-10vw) translateY(0) scaleX(-1) scale(1); opacity:0; }
+      8%   { opacity:1; }
+      50%  { transform: translateX(70vw) translateY(2vh) scaleX(-1) scale(1.02); }
+      92%  { opacity:1; }
+      100% { transform: translateX(140vw) translateY(0) scaleX(-1) scale(1); opacity:0; }
     }
 
-    @keyframes sway {
-        0%   { transform: rotate(-6deg); }
-        50%  { transform: rotate(5deg); }
-        100% { transform: rotate(-4deg); }
+    .fly-top { top:10%; bottom:auto; animation: flyTopLR 8s linear forwards; }
+    .fly-bottom { top:auto; bottom:10%; animation: flyBottomRL 8s linear forwards; }
+
+    /* --- Train: bottom L->R every 10s --- */
+    .train{
+      position:absolute;
+      left:-60%;
+      bottom:2px;
+      z-index:7;
+      width:520px;
+      max-width:70vw;
+      pointer-events:none;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.28));
+      animation: trainPass 10s linear infinite;
+    }
+    @keyframes trainPass{
+      0%   { transform: translateX(-10vw); opacity:0; }
+      6%   { opacity:1; }
+      92%  { opacity:1; }
+      100% { transform: translateX(150vw); opacity:0; }
     }
 
-    /* FALLING SNOW */
-    .snow-layer {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        pointer-events: none;
-        z-index: 3;
+    /* Wheels: stable SVG rotation */
+    .wheelSpin{
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: wheelSpin 1.1s linear infinite;
+    }
+    /* NOTE: negative rotation because we flipped the train artwork */
+    @keyframes wheelSpin{ to{ transform: rotate(-360deg); } }
+
+    /* Steam */
+    .steam-puff{
+      animation: puff 1.6s ease-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+      opacity:.65;
+    }
+    .steam-puff.p2{ animation-delay:.35s; opacity:.5; }
+    .steam-puff.p3{ animation-delay:.7s; opacity:.4; }
+    @keyframes puff{
+      0%   { transform: translate(0,0) scale(0.7); opacity:0; }
+      20%  { opacity:.6; }
+      100% { transform: translate(-18px,-18px) scale(1.25); opacity:0; }
     }
 
-    .flake {
-        position: absolute;
-        top: -10px;
-        font-size: 14px;
-        color: #ffffff;
-        opacity: 0.75;
-        animation: fall linear infinite;
+    @media (max-width: 900px){
+      .center{ padding: 0 10vw; }
+      .title{ font-size:44px; }
+      .sub{ font-size:22px; }
+      .countdown{ font-size:64px; }
     }
 
-    @keyframes fall {
-        0%   { transform: translateY(-10vh); }
-        100% { transform: translateY(110vh); }
+    @media (prefers-reduced-motion: reduce){
+      .flake, .bulb, .twinkle, .star, .flyby, .train, .wheelSpin, .steam-puff{ animation:none !important; }
     }
-
-    /* TWINKLING STARS */
-    .stars-layer {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 4;
-    }
-
-    .star {
-        position: absolute;
-        width: 8px;
-        height: 8px;
-        background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 60%);
-        border-radius: 50%;
-        opacity: 0.4;
-        animation: twinkle 2.2s infinite ease-in-out;
-    }
-
-    @keyframes twinkle {
-        0%, 100% { opacity: 0.1; transform: scale(0.7); }
-        50%      { opacity: 1;   transform: scale(1.4); }
-    }
-
-    /* MOVING EMOJIS (Santa & Trees) */
-    .float-emoji {
-        position: absolute;
-        font-size: 46px;
-        z-index: 6;
-        pointer-events: none;
-    }
-
-    .tree1 {
-        top: 15%;
-        left: 5%;
-        animation: floatTree1 18s linear infinite;
-    }
-    .tree2 {
-        top: 65%;
-        left: 80%;
-        animation: floatTree2 22s linear infinite;
-    }
-    .santa1 {
-        top: 70%;
-        left: 10%;
-        animation: floatSanta1 20s linear infinite;
-    }
-    .santa2 {
-        top: 20%;
-        left: 75%;
-        animation: floatSanta2 24s linear infinite;
-    }
-
-    @keyframes floatTree1 {
-        0%   { transform: translate(0, 0); }
-        25%  { transform: translate(15vw, 5vh); }
-        50%  { transform: translate(25vw, 20vh); }
-        75%  { transform: translate(10vw, 30vh); }
-        100% { transform: translate(0, 0); }
-    }
-
-    @keyframes floatTree2 {
-        0%   { transform: translate(0, 0); }
-        25%  { transform: translate(-10vw, -10vh); }
-        50%  { transform: translate(-20vw, -25vh); }
-        75%  { transform: translate(-5vw, -35vh); }
-        100% { transform: translate(0, 0); }
-    }
-
-    @keyframes floatSanta1 {
-        0%   { transform: translate(0, 0); }
-        25%  { transform: translate(15vw, -10vh); }
-        50%  { transform: translate(30vw, -5vh); }
-        75%  { transform: translate(20vw, 10vh); }
-        100% { transform: translate(0, 0); }
-    }
-
-    @keyframes floatSanta2 {
-        0%   { transform: translate(0, 0); }
-        25%  { transform: translate(-10vw, 10vh); }
-        50%  { transform: translate(-25vw, 5vh); }
-        75%  { transform: translate(-15vw, -10vh); }
-        100% { transform: translate(0, 0); }
-    }
-</style>
+  </style>
 </head>
 
 <body>
+<div class="stage">
 
-<!-- Garland wires using SVG for nice curves -->
-<svg class="garland-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-    <path class="garland-path" d="M 5 10 Q 25 0, 50 10 T 95 10" />
-    <path class="garland-path" d="M 5 90 Q 25 100, 50 90 T 95 90" />
-    <path class="garland-path" d="M 8 10 Q 0 35, 8 60 Q 16 80, 8 92" />
-    <path class="garland-path" d="M 92 10 Q 100 35, 92 60 Q 84 80, 92 92" />
-</svg>
+  <div class="twinkles">
+    <div class="twinkle" style="top:10%; left:30%; animation-delay:0s;"></div>
+    <div class="twinkle" style="top:18%; left:55%; animation-delay:0.7s;"></div>
+    <div class="twinkle" style="top:9%; left:63%; animation-delay:1.4s;"></div>
+    <div class="twinkle" style="top:22%; left:42%; animation-delay:2.0s;"></div>
+    <div class="twinkle" style="top:28%; left:72%; animation-delay:1.1s;"></div>
+  </div>
 
-<div class="lights-layer">
-    <div class="bulbs-row top">
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-    </div>
+  <!-- Snow -->
+  <div class="snow-layer" id="snow"></div>
 
-    <div class="bulbs-row bottom">
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-    </div>
+  <!-- Flying Santa sleigh -->
+  <div class="flyby fly-top" id="flyby" aria-hidden="true">
+    <svg viewBox="0 0 900 260" width="100%" height="100%">
+      <circle cx="70" cy="60" r="6" fill="#fff" opacity="0.6"></circle>
+      <circle cx="40" cy="90" r="4" fill="#fff" opacity="0.5"></circle>
+      <circle cx="90" cy="110" r="5" fill="#fff" opacity="0.55"></circle>
 
-    <div class="bulbs-col left">
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span>
-    </div>
+      <g transform="translate(140,90)">
+        <ellipse cx="70" cy="55" rx="55" ry="28" fill="#b07a4b"></ellipse>
+        <circle cx="120" cy="45" r="18" fill="#b07a4b"></circle>
+        <circle cx="125" cy="43" r="3" fill="#1b0f10"></circle>
+        <circle cx="130" cy="52" r="4" fill="#ff4b4b"></circle>
+        <path d="M118 25 C130 5, 150 10, 145 30" stroke="#6b3f22" stroke-width="6" fill="none" stroke-linecap="round"></path>
+        <path d="M112 25 C95 5, 80 12, 90 30" stroke="#6b3f22" stroke-width="6" fill="none" stroke-linecap="round"></path>
+        <rect x="30" y="75" width="10" height="35" fill="#6b3f22"></rect>
+        <rect x="80" y="75" width="10" height="35" fill="#6b3f22"></rect>
+      </g>
 
-    <div class="bulbs-col right">
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-        <span class="bulb"></span><span class="bulb"></span>
-    </div>
-</div>
+      <path d="M260 150 C330 110, 410 120, 480 150" stroke="#f5d7a6" stroke-width="4" fill="none" opacity="0.9"></path>
 
-<!-- Falling snow -->
-<div class="snow-layer" id="snow"></div>
+      <g transform="translate(470,70)">
+        <path d="M60 130 C120 160, 210 160, 270 130" stroke="#f1c40f" stroke-width="10" fill="none" stroke-linecap="round"></path>
+        <rect x="70" y="70" width="170" height="70" rx="18" fill="#c83a3a"></rect>
+        <rect x="85" y="55" width="140" height="30" rx="14" fill="#e05252"></rect>
+        <circle cx="120" cy="50" r="20" fill="#ffd3b1"></circle>
+        <path d="M102 45 C112 20, 140 20, 150 45" fill="#ff4b4b"></path>
+        <circle cx="150" cy="30" r="10" fill="#fff"></circle>
+        <circle cx="112" cy="50" r="3" fill="#1b0f10"></circle>
+        <circle cx="128" cy="50" r="3" fill="#1b0f10"></circle>
+        <path d="M114 60 C122 68, 130 68, 138 60" stroke="#1b0f10" stroke-width="3" fill="none" stroke-linecap="round"></path>
+        <ellipse cx="220" cy="55" rx="48" ry="32" fill="#8e5a2b"></ellipse>
+      </g>
+    </svg>
+  </div>
 
-<!-- Twinkling stars -->
-<div class="stars-layer">
-    <div class="star" style="top:12%; left:38%; animation-delay:0s;"></div>
-    <div class="star" style="top:18%; left:62%; animation-delay:0.7s;"></div>
-    <div class="star" style="top:8%;  left:52%; animation-delay:1.3s;"></div>
-    <div class="star" style="top:22%; left:30%; animation-delay:1.9s;"></div>
-    <div class="star" style="top:25%; left:70%; animation-delay:2.4s;"></div>
-</div>
+  <!-- Train (engine + 1 carriage). NOTE: artwork is flipped inside SVG so it faces RIGHT. -->
+  <div class="train" aria-hidden="true">
+    <svg viewBox="0 0 820 170" width="100%" height="100%">
+      <g transform="translate(820,0) scale(-1,1)">
+        <!-- steam -->
+        <g transform="translate(120,10)">
+          <circle class="steam-puff" cx="0" cy="40" r="16" fill="#ffffff"/>
+          <circle class="steam-puff p2" cx="24" cy="34" r="12" fill="#ffffff"/>
+          <circle class="steam-puff p3" cx="44" cy="44" r="10" fill="#ffffff"/>
+        </g>
 
-<!-- Floating emojis -->
-<div class="float-emoji tree1">🎄</div>
-<div class="float-emoji tree2">🎄</div>
-<div class="float-emoji santa1">🎅</div>
-<div class="float-emoji santa2">🎅</div>
+        <!-- tiny track hint -->
+        <path d="M30 150 H790" stroke="rgba(255,255,255,.22)" stroke-width="6" stroke-linecap="round"/>
+        <path d="M50 160 H770" stroke="rgba(0,0,0,.15)" stroke-width="6" stroke-linecap="round"/>
 
-<!-- Main content -->
-<div class="content">
-    <div>
-        <div class="title-wrap">
-            <div class="title">NSDL Christmas Party</div>
+        <!-- engine -->
+        <g transform="translate(60,45)">
+          <rect x="0" y="58" width="260" height="56" rx="12" fill="#2f2f2f"/>
+          <rect x="10" y="68" width="240" height="36" rx="10" fill="#c83a3a"/>
+
+          <rect x="-18" y="90" width="26" height="12" rx="6" fill="#f1c40f"/>
+
+          <rect x="150" y="10" width="90" height="60" rx="12" fill="#c83a3a"/>
+          <rect x="162" y="22" width="30" height="24" rx="6" fill="#e9f6ff" opacity="0.95"/>
+          <rect x="200" y="22" width="30" height="24" rx="6" fill="#e9f6ff" opacity="0.95"/>
+
+          <rect x="30" y="30" width="140" height="48" rx="22" fill="#e05252"/>
+
+          <rect x="70" y="6" width="26" height="28" rx="6" fill="#2f2f2f"/>
+          <rect x="62" y="0" width="42" height="10" rx="5" fill="#2f2f2f"/>
+
+          <circle cx="18" cy="72" r="10" fill="#ffd27d"/>
+          <circle cx="18" cy="72" r="5" fill="#fff" opacity=".85"/>
+
+          <!-- wheels -->
+          <g transform="translate(40,116)">
+            <g transform="translate(0,0)">
+              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
+              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
+              <path class="wheelSpin"
+                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
+                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g transform="translate(70,0)">
+              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
+              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
+              <path class="wheelSpin"
+                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
+                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g transform="translate(140,0)">
+              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
+              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
+              <path class="wheelSpin"
+                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
+                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- coupler -->
+        <rect x="330" y="116" width="26" height="10" rx="5" fill="#f1c40f"/>
+
+        <!-- carriage with presents -->
+        <g transform="translate(360,60)">
+          <rect x="0" y="40" width="250" height="58" rx="12" fill="#2f2f2f"/>
+          <rect x="12" y="50" width="226" height="38" rx="10" fill="#25b26b"/>
+
+          <g transform="translate(40,18)">
+            <rect x="0" y="22" width="44" height="34" rx="6" fill="#3498db"/>
+            <path d="M22 22 V56" stroke="#fff" stroke-width="4"/>
+            <path d="M0 39 H44" stroke="#fff" stroke-width="4"/>
+
+            <rect x="60" y="10" width="48" height="46" rx="8" fill="#ff4b4b"/>
+            <path d="M84 10 V56" stroke="#fff" stroke-width="4"/>
+            <path d="M60 33 H108" stroke="#fff" stroke-width="4"/>
+
+            <rect x="130" y="26" width="46" height="30" rx="6" fill="#f1c40f"/>
+            <path d="M153 26 V56" stroke="#fff" stroke-width="4"/>
+            <path d="M130 41 H176" stroke="#fff" stroke-width="4"/>
+          </g>
+
+          <g transform="translate(50,108)">
+            <g transform="translate(0,0)">
+              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
+              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
+              <path class="wheelSpin"
+                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
+                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g transform="translate(150,0)">
+              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
+              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
+              <path class="wheelSpin"
+                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
+                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Left tree -->
+  <div class="tree left" aria-hidden="true">
+    <div class="tree-body">
+      <svg class="star" viewBox="0 0 100 100">
+        <path d="M50 6 L62 38 L96 38 L68 57 L78 90 L50 71 L22 90 L32 57 L4 38 L38 38 Z" fill="var(--gold)"></path>
+      </svg>
+
+      <div class="layer l5"></div>
+      <div class="layer l4"></div>
+      <div class="layer l3"></div>
+      <div class="layer l2"></div>
+      <div class="layer l1"></div>
+      <div class="trunk"></div>
+
+      <div class="garland">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M15 25 Q 50 38 85 25"></path>
+          <path d="M12 45 Q 50 60 88 45"></path>
+          <path d="M10 65 Q 50 82 90 65"></path>
+        </svg>
+
+        <div class="bulbs">
+          <span class="bulb c1" style="left:18%; top:22%; animation-delay:0.0s,0.0s;"></span>
+          <span class="bulb c2" style="left:32%; top:26%; animation-delay:0.2s,0.1s;"></span>
+          <span class="bulb c3" style="left:48%; top:28%; animation-delay:0.4s,0.2s;"></span>
+          <span class="bulb c4" style="left:64%; top:26%; animation-delay:0.6s,0.3s;"></span>
+          <span class="bulb c1" style="left:78%; top:22%; animation-delay:0.8s,0.4s;"></span>
+
+          <span class="bulb c2" style="left:16%; top:44%; animation-delay:0.1s,0.2s;"></span>
+          <span class="bulb c3" style="left:30%; top:49%; animation-delay:0.3s,0.3s;"></span>
+          <span class="bulb c4" style="left:48%; top:52%; animation-delay:0.5s,0.4s;"></span>
+          <span class="bulb c1" style="left:66%; top:49%; animation-delay:0.7s,0.5s;"></span>
+          <span class="bulb c2" style="left:82%; top:44%; animation-delay:0.9s,0.6s;"></span>
+
+          <span class="bulb c3" style="left:14%; top:66%; animation-delay:0.0s,0.3s;"></span>
+          <span class="bulb c4" style="left:30%; top:72%; animation-delay:0.2s,0.4s;"></span>
+          <span class="bulb c1" style="left:50%; top:76%; animation-delay:0.4s,0.5s;"></span>
+          <span class="bulb c2" style="left:70%; top:72%; animation-delay:0.6s,0.6s;"></span>
+          <span class="bulb c3" style="left:86%; top:66%; animation-delay:0.8s,0.7s;"></span>
         </div>
-        <div class="subtitle">Cibaria Manly • 5 December • 6:00 pm</div>
-        <div class="countdown" id="cd">Loading…</div>
+      </div>
     </div>
+  </div>
+
+  <!-- Right tree -->
+  <div class="tree right" aria-hidden="true">
+    <div class="tree-body">
+      <svg class="star" viewBox="0 0 100 100">
+        <path d="M50 6 L62 38 L96 38 L68 57 L78 90 L50 71 L22 90 L32 57 L4 38 L38 38 Z" fill="var(--gold)"></path>
+      </svg>
+
+      <div class="layer l5"></div>
+      <div class="layer l4"></div>
+      <div class="layer l3"></div>
+      <div class="layer l2"></div>
+      <div class="layer l1"></div>
+      <div class="trunk"></div>
+
+      <div class="garland">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M15 25 Q 50 38 85 25"></path>
+          <path d="M12 45 Q 50 60 88 45"></path>
+          <path d="M10 65 Q 50 82 90 65"></path>
+        </svg>
+
+        <div class="bulbs">
+          <span class="bulb c1" style="left:18%; top:22%; animation-delay:0.15s,0.0s;"></span>
+          <span class="bulb c2" style="left:32%; top:26%; animation-delay:0.35s,0.1s;"></span>
+          <span class="bulb c3" style="left:48%; top:28%; animation-delay:0.55s,0.2s;"></span>
+          <span class="bulb c4" style="left:64%; top:26%; animation-delay:0.75s,0.3s;"></span>
+          <span class="bulb c1" style="left:78%; top:22%; animation-delay:0.95s,0.4s;"></span>
+
+          <span class="bulb c2" style="left:16%; top:44%; animation-delay:0.25s,0.2s;"></span>
+          <span class="bulb c3" style="left:30%; top:49%; animation-delay:0.45s,0.3s;"></span>
+          <span class="bulb c4" style="left:48%; top:52%; animation-delay:0.65s,0.4s;"></span>
+          <span class="bulb c1" style="left:66%; top:49%; animation-delay:0.85s,0.5s;"></span>
+          <span class="bulb c2" style="left:82%; top:44%; animation-delay:1.05s,0.6s;"></span>
+
+          <span class="bulb c3" style="left:14%; top:66%; animation-delay:0.15s,0.3s;"></span>
+          <span class="bulb c4" style="left:30%; top:72%; animation-delay:0.35s,0.4s;"></span>
+          <span class="bulb c1" style="left:50%; top:76%; animation-delay:0.55s,0.5s;"></span>
+          <span class="bulb c2" style="left:70%; top:72%; animation-delay:0.75s,0.6s;"></span>
+          <span class="bulb c3" style="left:86%; top:66%; animation-delay:0.95s,0.7s;"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center content -->
+  <div class="center">
+    <div class="card">
+      <h1 class="title">Christmas Clinic Closure</h1>
+      <p class="sub">Counting down to Friday 19th • 5:00 pm</p>
+      <div class="countdown" id="cd">—</div>
+    </div>
+  </div>
+
+  <div class="christmasline" id="xmasline">—</div>
 </div>
 
 <script>
-/* Countdown logic */
-function updateCountdown() {
-    var target = new Date(2025, 11, 5, 18, 0, 0).getTime(); // 5 Dec 2025, 6pm
-    var now = new Date().getTime();
-    var diff = target - now;
+  // Set the closure date/time here:
+  const TARGET = new Date(2025, 11, 19, 17, 0, 0); // Dec=11
 
-    if (diff <= 0) {
-        document.getElementById("cd").innerHTML = "🎉 It's party time!";
-        return;
+  function updateCountdown(){
+    const now = new Date();
+    const diff = TARGET.getTime() - now.getTime();
+    const cd = document.getElementById("cd");
+
+    if(diff <= 0){
+      cd.textContent = "✅ Closed!";
+      return;
     }
 
-    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const seconds = Math.floor((diff % (1000*60)) / 1000);
 
-    document.getElementById("cd").innerHTML =
-        days + "d " + hours + "h " + minutes + "m " + seconds + "s";
-}
+    cd.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
 
-setInterval(updateCountdown, 1000);
-updateCountdown();
-
-/* Generate snowflakes */
-(function () {
-    var snowContainer = document.getElementById("snow");
-    var flakes = 70;
-
-    for (var i = 0; i < flakes; i++) {
-        var flake = document.createElement("div");
-        flake.className = "flake";
-        flake.textContent = "❄";
-
-        var size = 10 + Math.random() * 10;
-        var left = Math.random() * 100;
-        var duration = 8 + Math.random() * 10;
-        var delay = Math.random() * 10;
-
-        flake.style.fontSize = size + "px";
-        flake.style.left = left + "vw";
-        flake.style.animationDuration = duration + "s";
-        flake.style.animationDelay = delay + "s";
-
-        snowContainer.appendChild(flake);
+  function updateDaysUntilChristmas(){
+    const now = new Date();
+    const year = now.getFullYear();
+    let xmas = new Date(year, 11, 25, 0, 0, 0);
+    if(now.getTime() > xmas.getTime()){
+      xmas = new Date(year + 1, 11, 25, 0, 0, 0);
     }
-})();
+    const diff = xmas.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000*60*60*24));
+    document.getElementById("xmasline").textContent = `${days} days until Christmas 🎅`;
+  }
+
+  // Snow
+  (function makeSnow(){
+    const snow = document.getElementById("snow");
+    const flakes = 80;
+    for(let i=0;i<flakes;i++){
+      const f = document.createElement("div");
+      f.className = "flake";
+      f.textContent = "❄";
+      const size = 10 + Math.random()*12;
+      const left = Math.random()*100;
+      const dur  = 7 + Math.random()*11;
+      const delay= Math.random()*10;
+      f.style.fontSize = size + "px";
+      f.style.left = left + "vw";
+      f.style.animationDuration = dur + "s";
+      f.style.animationDelay = delay + "s";
+      snow.appendChild(f);
+    }
+  })();
+
+  // Santa flyby: top then bottom, repeating
+  (function sleighLoop(){
+    const flyby = document.getElementById("flyby");
+    let mode = "top";
+
+    function run(){
+      flyby.classList.remove("fly-top", "fly-bottom");
+      void flyby.offsetWidth; // restart animation
+      flyby.classList.add(mode === "top" ? "fly-top" : "fly-bottom");
+    }
+
+    flyby.addEventListener("animationend", () => {
+      mode = (mode === "top") ? "bottom" : "top";
+      run();
+    });
+
+    run();
+  })();
+
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+  updateDaysUntilChristmas();
+  setInterval(updateDaysUntilChristmas, 60*1000);
 </script>
 
 </body>
