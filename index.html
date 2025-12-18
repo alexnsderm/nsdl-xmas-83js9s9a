@@ -1,650 +1,536 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Christmas Clinic Closure Countdown</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy 18th Birthday Harry</title>
   <style>
     :root{
-      --bg:#720e30;
-      --wire:#3d1a20;
-      --text:#ffffff;
-      --tree1:#0f4d2e;
-      --tree2:#0c3f26;
-      --trunk:#5a3b22;
-      --gold:#ffd27d;
+      /* Blue headline palette */
+      --brand: #1f4fd8;
+      --brand-soft: rgba(31, 79, 216, 0.86);
+      --brand-faint: rgba(31, 79, 216, 0.10);
+      --brand-line: rgba(31, 79, 216, 0.16);
+
+      /* neutral background */
+      --bg1: #ffffff;
+      --bg2: #fbfbfd;
+      --ink: #1b1b1b;
+      --shadow: rgba(0,0,0,0.16);
     }
 
-    html,body{
-      margin:0; padding:0; height:100%; width:100%;
-      background:var(--bg);
-      color:var(--text);
-      font-family:"Segoe UI", Arial, sans-serif;
-      overflow:hidden;
+    *{ box-sizing:border-box; }
+    html, body { height:100%; margin:0; }
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      overflow: hidden;
+      color: var(--ink);
+
+      background:
+        radial-gradient(1200px 700px at 25% 18%, rgba(255,255,255,0.95), rgba(255,255,255,0) 58%),
+        radial-gradient(900px 600px at 80% 22%, rgba(31,79,216,0.06), rgba(255,255,255,0) 62%),
+        linear-gradient(140deg, var(--bg1), var(--bg2) 55%, var(--bg1));
     }
 
-    /* Layout */
-    .stage{ position:relative; height:100%; width:100%; }
-
-    .center{
-      position:relative;
-      z-index:5;
+    /* Confetti canvas */
+    #confetti{
+      position: fixed;
+      inset: 0;
+      width:100%;
       height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:0 18vw; /* leaves room for trees */
-      box-sizing:border-box;
+      pointer-events:none;
+      z-index:1;
     }
 
-    .card{ width:min(1100px, 100%); }
+    /* Balloons layer */
+    #balloonLayer{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2; /* above confetti, below card (card is z=3 via wrap) */
+      overflow: hidden;
+    }
 
-    .title{
-      font-size:56px;
-      font-weight:800;
-      letter-spacing:0.5px;
-      margin:0 0 10px 0;
+    .balloon{
+      position: absolute;
+      bottom: -160px;
+      width: 92px;
+      height: 125px;
+      filter: drop-shadow(0 14px 20px rgba(0,0,0,0.12));
+      will-change: transform;
+      animation: balloonRise var(--dur, 7.5s) linear forwards;
+    }
+
+    /* NOTE: no opacity fade at top */
+    @keyframes balloonRise{
+      0%   { transform: translate3d(0, 0, 0) rotate(var(--r0, -3deg)); }
+      50%  { transform: translate3d(calc(var(--drift, 0px) * 0.6), -55vh, 0) rotate(var(--r1, 4deg)); }
+      100% { transform: translate3d(var(--drift, 0px), -130vh, 0) rotate(var(--r2, -2deg)); }
+    }
+
+    /* Decorative glow */
+    .glow{
+      position: fixed;
+      width: 900px;
+      height: 900px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--brand-faint), rgba(255,255,255,0) 62%);
+      filter: blur(2px);
+      z-index: 0;
+      animation: drift 14s ease-in-out infinite alternate;
+      left: -260px;
+      top: -280px;
+      opacity: 0.8;
+    }
+    .glow2{
+      left:auto; top:auto;
+      right:-280px; bottom:-320px;
+      animation-duration: 17s;
+      animation-direction: alternate-reverse;
+      opacity: 0.7;
+    }
+    @keyframes drift{
+      to{ transform: translate(80px, 60px) scale(1.05); }
+    }
+
+    .wrap{
+      position: relative;
+      z-index:3;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding: 6vh 6vw;
+      text-align:center;
+    }
+
+    .card{
+      width: min(1100px, 92vw);
+      background: rgba(255,255,255,0.74);
+      border: 1px solid var(--brand-line);
+      box-shadow: 0 20px 60px var(--shadow);
+      border-radius: 36px;
+      padding: clamp(22px, 5.5vh, 52px) clamp(20px, 5vw, 64px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(600px 300px at 18% 0%, rgba(31,79,216,0.06), rgba(255,255,255,0) 70%),
+        radial-gradient(500px 260px at 82% 18%, rgba(31,79,216,0.05), rgba(255,255,255,0) 70%);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .content{
+      position: relative;
+      z-index:1;
+      display:grid;
+      gap: clamp(12px, 2.2vh, 18px);
+      justify-items:center;
+      align-items:center;
+    }
+
+    /* Entrance animations */
+    .pop{ animation: popIn 900ms cubic-bezier(.2,1.1,.2,1) both; }
+    .pop.delay1{ animation-delay: 150ms; }
+    .pop.delay2{ animation-delay: 320ms; }
+    .pop.delay3{ animation-delay: 520ms; }
+    .pop.delay4{ animation-delay: 720ms; }
+    @keyframes popIn{
+      from{ transform: translateY(18px) scale(0.985); opacity:0; }
+      to{ transform: translateY(0) scale(1); opacity:1; }
+    }
+
+    h1{
+      margin:0;
+      font-size: clamp(46px, 6.8vw, 86px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--brand-soft);
+      text-shadow: 0 8px 22px rgba(31,79,216,0.10);
     }
 
     .sub{
-      font-size:26px;
-      opacity:0.95;
-      margin:0 0 34px 0;
+      margin:0;
+      font-size: clamp(22px, 2.8vw, 34px);
+      color: rgba(27,27,27,0.86);
+    }
+    .sub strong{
+      color: rgba(31,79,216,0.82);
+      font-weight: 800;
     }
 
-    .countdown{
-      font-size:84px;
-      font-weight:900;
-      letter-spacing:3px;
-      margin:0 0 28px 0;
+    .congrats{
+      margin:0;
+      font-size: clamp(20px, 2.6vw, 32px);
+      color: rgba(27,27,27,0.86);
     }
 
-    .christmasline{
-      position:absolute;
-      left:0; right:0;
-      bottom:18px;
-      z-index:6;
-      text-align:center;
-      font-size:42px;
-      opacity:0.95;
+    .small{
+      margin:0;
+      font-size: clamp(16px, 1.8vw, 22px);
+      color: rgba(27,27,27,0.62);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      animation: shimmer 2.6s ease-in-out infinite;
+    }
+    @keyframes shimmer{
+      0%,100%{ opacity:0.65; transform: translateY(0); }
+      50%{ opacity:0.92; transform: translateY(-2px); }
     }
 
-    /* Snow */
-    .snow-layer{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      z-index:3;
-      overflow:hidden;
+    .cakeWrap{
+      margin-top: clamp(6px, 1.8vh, 12px);
+      width: min(520px, 70vw);
+      filter: drop-shadow(0 18px 30px rgba(0,0,0,0.11));
+      animation: floaty 4.8s ease-in-out infinite;
     }
-    .flake{
-      position:absolute;
-      top:-12px;
-      color:#fff;
-      opacity:0.75;
-      animation: fall linear infinite;
-      will-change: transform;
-    }
-    @keyframes fall{
-      0%   { transform: translateY(-10vh); }
-      100% { transform: translateY(115vh); }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-8px); }
     }
 
-    /* Trees (left + right) */
-    .tree{
-      position:absolute;
-      bottom:0;
-      width:18vw;
-      min-width:220px;
-      max-width:340px;
-      height:78vh;
-      z-index:4;
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-    }
-    .tree.left{ left:0; }
-    .tree.right{ right:0; transform: scaleX(-1); }
-
-    .tree-body{
-      position:relative;
-      width:100%;
-      height:100%;
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-    }
-
-    .layer{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      width:85%;
-      height:22%;
-      background:var(--tree1);
-      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-      filter: drop-shadow(0 6px 0 rgba(0,0,0,0.08));
-    }
-    .layer.l1{ bottom:18%; width:90%; height:26%; background:var(--tree1); }
-    .layer.l2{ bottom:35%; width:78%; height:22%; background:var(--tree2); }
-    .layer.l3{ bottom:50%; width:66%; height:20%; background:var(--tree1); }
-    .layer.l4{ bottom:63%; width:52%; height:18%; background:var(--tree2); }
-    .layer.l5{ bottom:74%; width:38%; height:16%; background:var(--tree1); }
-
-    .trunk{
-      position:absolute;
-      bottom:0;
-      width:18%;
-      height:18%;
-      background:var(--trunk);
-      border-radius:10px 10px 0 0;
-      filter: drop-shadow(0 6px 0 rgba(0,0,0,0.10));
-    }
-
-    .star{
-      position:absolute;
-      top:6%;
-      left:50%;
-      transform:translateX(-50%);
-      width:48px;
-      height:48px;
-      z-index:7;
-      filter: drop-shadow(0 0 12px rgba(255,210,125,0.65));
-      animation: starPulse 1.8s infinite ease-in-out;
-    }
-    @keyframes starPulse{
-      0%,100%{ transform:translateX(-50%) scale(1); opacity:0.85; }
-      50%    { transform:translateX(-50%) scale(1.12); opacity:1; }
-    }
-
-    .garland{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      width:86%;
-      height:70%;
-      bottom:16%;
-      z-index:6;
-      pointer-events:none;
-    }
-    .garland svg{ width:100%; height:100%; }
-    .garland path{
-      fill:none;
-      stroke:var(--wire);
-      stroke-width:3;
-      opacity:0.85;
-      stroke-linecap:round;
-    }
-
-    .bulbs{ position:absolute; inset:0; }
-
-    .bulb{
-      position:absolute;
-      width:18px;
-      height:26px;
-      border-radius: 50% 50% 44% 44%;
-      animation: flash 1.15s infinite ease-in-out, sway 2.4s infinite ease-in-out;
-      transform-origin: top center;
-      box-shadow: 0 0 6px rgba(0,0,0,0.35);
-    }
-
-    @keyframes flash{
-      0%,100%{ opacity:0.25; filter:brightness(0.85); box-shadow:0 0 4px rgba(0,0,0,0.35); }
-      50%    { opacity:1; filter:brightness(2.0); box-shadow:0 0 22px currentColor, 0 0 42px currentColor; }
-    }
-    @keyframes sway{
-      0%{ transform:rotate(-6deg); }
-      50%{ transform:rotate(5deg); }
-      100%{ transform:rotate(-4deg); }
-    }
-
-    .c1{ background:#ff4b4b; color:#ff4b4b; }
-    .c2{ background:#2ecc71; color:#2ecc71; }
-    .c3{ background:#f1c40f; color:#f1c40f; }
-    .c4{ background:#3498db; color:#3498db; }
-
-    /* Background twinkles */
-    .twinkles{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      z-index:2;
-    }
-    .twinkle{
-      position:absolute;
-      width:8px; height:8px;
-      border-radius:50%;
-      background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 60%);
-      opacity:0.2;
-      animation: twinkle 2.4s infinite ease-in-out;
-    }
-    @keyframes twinkle{
-      0%,100%{ opacity:0.08; transform:scale(0.7); }
-      50%    { opacity:0.9;  transform:scale(1.4); }
-    }
-
-    /* --- Santa flyby: top L->R then bottom R->L repeatedly --- */
-    .flyby{
-      position:absolute;
-      z-index:7;
-      width:420px;
-      max-width:45vw;
-      opacity:0.98;
-      pointer-events:none;
-      left:-40%;
-      top:10%;
-      will-change: transform, opacity;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
-    }
-
-    @keyframes flyTopLR{
-      0%   { transform: translateX(-10vw) translateY(0) scale(1); opacity:0; }
-      8%   { opacity:1; }
-      50%  { transform: translateX(70vw) translateY(-2vh) scale(1.02); }
-      92%  { opacity:1; }
-      100% { transform: translateX(140vw) translateY(0) scale(1); opacity:0; }
-    }
-
-    @keyframes flyBottomRL{
-      0%   { transform: translateX(-10vw) translateY(0) scaleX(-1) scale(1); opacity:0; }
-      8%   { opacity:1; }
-      50%  { transform: translateX(70vw) translateY(2vh) scaleX(-1) scale(1.02); }
-      92%  { opacity:1; }
-      100% { transform: translateX(140vw) translateY(0) scaleX(-1) scale(1); opacity:0; }
-    }
-
-    .fly-top { top:10%; bottom:auto; animation: flyTopLR 8s linear forwards; }
-    .fly-bottom { top:auto; bottom:10%; animation: flyBottomRL 8s linear forwards; }
-
-    /* --- Train: bottom L->R every 10s --- */
-    .train{
-      position:absolute;
-      left:-60%;
-      bottom:2px;
-      z-index:7;
-      width:520px;
-      max-width:70vw;
-      pointer-events:none;
-      will-change: transform, opacity;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.28));
-      animation: trainPass 10s linear infinite;
-    }
-    @keyframes trainPass{
-      0%   { transform: translateX(-10vw); opacity:0; }
-      6%   { opacity:1; }
-      92%  { opacity:1; }
-      100% { transform: translateX(150vw); opacity:0; }
-    }
-
-    /* Wheels: stable SVG rotation */
-    .wheelSpin{
+    /* Flame flicker — inner group only */
+    .flameShape{
       transform-box: fill-box;
-      transform-origin: center;
-      animation: wheelSpin 1.1s linear infinite;
+      transform-origin: 50% 100%;
+      filter: drop-shadow(0 0 14px rgba(255, 183, 3, 0.35));
+      animation: flicker 0.14s infinite alternate;
     }
-    /* NOTE: negative rotation because we flipped the train artwork */
-    @keyframes wheelSpin{ to{ transform: rotate(-360deg); } }
+    .flameShape.f2{ animation-duration: 0.12s; }
+    .flameShape.f3{ animation-duration: 0.16s; }
 
-    /* Steam */
-    .steam-puff{
-      animation: puff 1.6s ease-out infinite;
-      transform-box: fill-box;
-      transform-origin: center;
-      opacity:.65;
-    }
-    .steam-puff.p2{ animation-delay:.35s; opacity:.5; }
-    .steam-puff.p3{ animation-delay:.7s; opacity:.4; }
-    @keyframes puff{
-      0%   { transform: translate(0,0) scale(0.7); opacity:0; }
-      20%  { opacity:.6; }
-      100% { transform: translate(-18px,-18px) scale(1.25); opacity:0; }
-    }
-
-    @media (max-width: 900px){
-      .center{ padding: 0 10vw; }
-      .title{ font-size:44px; }
-      .sub{ font-size:22px; }
-      .countdown{ font-size:64px; }
+    @keyframes flicker{
+      from{ transform: translate(var(--tx,0px), 0px) rotate(-2deg) scale(0.98); opacity:0.93; }
+      to  { transform: translate(var(--tx,0px), -2px) rotate( 2deg) scale(1.03); opacity:1; }
     }
 
     @media (prefers-reduced-motion: reduce){
-      .flake, .bulb, .twinkle, .star, .flyby, .train, .wheelSpin, .steam-puff{ animation:none !important; }
+      * { animation: none !important; transition: none !important; }
+      #confetti, #balloonLayer { display:none; }
     }
   </style>
 </head>
-
 <body>
-<div class="stage">
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div id="balloonLayer" aria-hidden="true"></div>
 
-  <div class="twinkles">
-    <div class="twinkle" style="top:10%; left:30%; animation-delay:0s;"></div>
-    <div class="twinkle" style="top:18%; left:55%; animation-delay:0.7s;"></div>
-    <div class="twinkle" style="top:9%; left:63%; animation-delay:1.4s;"></div>
-    <div class="twinkle" style="top:22%; left:42%; animation-delay:2.0s;"></div>
-    <div class="twinkle" style="top:28%; left:72%; animation-delay:1.1s;"></div>
-  </div>
+  <div class="glow"></div>
+  <div class="glow glow2"></div>
 
-  <!-- Snow -->
-  <div class="snow-layer" id="snow"></div>
-
-  <!-- Flying Santa sleigh -->
-  <div class="flyby fly-top" id="flyby" aria-hidden="true">
-    <svg viewBox="0 0 900 260" width="100%" height="100%">
-      <circle cx="70" cy="60" r="6" fill="#fff" opacity="0.6"></circle>
-      <circle cx="40" cy="90" r="4" fill="#fff" opacity="0.5"></circle>
-      <circle cx="90" cy="110" r="5" fill="#fff" opacity="0.55"></circle>
-
-      <g transform="translate(140,90)">
-        <ellipse cx="70" cy="55" rx="55" ry="28" fill="#b07a4b"></ellipse>
-        <circle cx="120" cy="45" r="18" fill="#b07a4b"></circle>
-        <circle cx="125" cy="43" r="3" fill="#1b0f10"></circle>
-        <circle cx="130" cy="52" r="4" fill="#ff4b4b"></circle>
-        <path d="M118 25 C130 5, 150 10, 145 30" stroke="#6b3f22" stroke-width="6" fill="none" stroke-linecap="round"></path>
-        <path d="M112 25 C95 5, 80 12, 90 30" stroke="#6b3f22" stroke-width="6" fill="none" stroke-linecap="round"></path>
-        <rect x="30" y="75" width="10" height="35" fill="#6b3f22"></rect>
-        <rect x="80" y="75" width="10" height="35" fill="#6b3f22"></rect>
-      </g>
-
-      <path d="M260 150 C330 110, 410 120, 480 150" stroke="#f5d7a6" stroke-width="4" fill="none" opacity="0.9"></path>
-
-      <g transform="translate(470,70)">
-        <path d="M60 130 C120 160, 210 160, 270 130" stroke="#f1c40f" stroke-width="10" fill="none" stroke-linecap="round"></path>
-        <rect x="70" y="70" width="170" height="70" rx="18" fill="#c83a3a"></rect>
-        <rect x="85" y="55" width="140" height="30" rx="14" fill="#e05252"></rect>
-        <circle cx="120" cy="50" r="20" fill="#ffd3b1"></circle>
-        <path d="M102 45 C112 20, 140 20, 150 45" fill="#ff4b4b"></path>
-        <circle cx="150" cy="30" r="10" fill="#fff"></circle>
-        <circle cx="112" cy="50" r="3" fill="#1b0f10"></circle>
-        <circle cx="128" cy="50" r="3" fill="#1b0f10"></circle>
-        <path d="M114 60 C122 68, 130 68, 138 60" stroke="#1b0f10" stroke-width="3" fill="none" stroke-linecap="round"></path>
-        <ellipse cx="220" cy="55" rx="48" ry="32" fill="#8e5a2b"></ellipse>
-      </g>
-    </svg>
-  </div>
-
-  <!-- Train (engine + 1 carriage). NOTE: artwork is flipped inside SVG so it faces RIGHT. -->
-  <div class="train" aria-hidden="true">
-    <svg viewBox="0 0 820 170" width="100%" height="100%">
-      <g transform="translate(820,0) scale(-1,1)">
-        <!-- steam -->
-        <g transform="translate(120,10)">
-          <circle class="steam-puff" cx="0" cy="40" r="16" fill="#ffffff"/>
-          <circle class="steam-puff p2" cx="24" cy="34" r="12" fill="#ffffff"/>
-          <circle class="steam-puff p3" cx="44" cy="44" r="10" fill="#ffffff"/>
-        </g>
-
-        <!-- tiny track hint -->
-        <path d="M30 150 H790" stroke="rgba(255,255,255,.22)" stroke-width="6" stroke-linecap="round"/>
-        <path d="M50 160 H770" stroke="rgba(0,0,0,.15)" stroke-width="6" stroke-linecap="round"/>
-
-        <!-- engine -->
-        <g transform="translate(60,45)">
-          <rect x="0" y="58" width="260" height="56" rx="12" fill="#2f2f2f"/>
-          <rect x="10" y="68" width="240" height="36" rx="10" fill="#c83a3a"/>
-
-          <rect x="-18" y="90" width="26" height="12" rx="6" fill="#f1c40f"/>
-
-          <rect x="150" y="10" width="90" height="60" rx="12" fill="#c83a3a"/>
-          <rect x="162" y="22" width="30" height="24" rx="6" fill="#e9f6ff" opacity="0.95"/>
-          <rect x="200" y="22" width="30" height="24" rx="6" fill="#e9f6ff" opacity="0.95"/>
-
-          <rect x="30" y="30" width="140" height="48" rx="22" fill="#e05252"/>
-
-          <rect x="70" y="6" width="26" height="28" rx="6" fill="#2f2f2f"/>
-          <rect x="62" y="0" width="42" height="10" rx="5" fill="#2f2f2f"/>
-
-          <circle cx="18" cy="72" r="10" fill="#ffd27d"/>
-          <circle cx="18" cy="72" r="5" fill="#fff" opacity=".85"/>
-
-          <!-- wheels -->
-          <g transform="translate(40,116)">
-            <g transform="translate(0,0)">
-              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
-              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
-              <path class="wheelSpin"
-                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
-                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
-            </g>
-            <g transform="translate(70,0)">
-              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
-              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
-              <path class="wheelSpin"
-                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
-                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
-            </g>
-            <g transform="translate(140,0)">
-              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
-              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
-              <path class="wheelSpin"
-                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
-                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
-            </g>
-          </g>
-        </g>
-
-        <!-- coupler -->
-        <rect x="330" y="116" width="26" height="10" rx="5" fill="#f1c40f"/>
-
-        <!-- carriage with presents -->
-        <g transform="translate(360,60)">
-          <rect x="0" y="40" width="250" height="58" rx="12" fill="#2f2f2f"/>
-          <rect x="12" y="50" width="226" height="38" rx="10" fill="#25b26b"/>
-
-          <g transform="translate(40,18)">
-            <rect x="0" y="22" width="44" height="34" rx="6" fill="#3498db"/>
-            <path d="M22 22 V56" stroke="#fff" stroke-width="4"/>
-            <path d="M0 39 H44" stroke="#fff" stroke-width="4"/>
-
-            <rect x="60" y="10" width="48" height="46" rx="8" fill="#ff4b4b"/>
-            <path d="M84 10 V56" stroke="#fff" stroke-width="4"/>
-            <path d="M60 33 H108" stroke="#fff" stroke-width="4"/>
-
-            <rect x="130" y="26" width="46" height="30" rx="6" fill="#f1c40f"/>
-            <path d="M153 26 V56" stroke="#fff" stroke-width="4"/>
-            <path d="M130 41 H176" stroke="#fff" stroke-width="4"/>
-          </g>
-
-          <g transform="translate(50,108)">
-            <g transform="translate(0,0)">
-              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
-              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
-              <path class="wheelSpin"
-                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
-                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
-            </g>
-            <g transform="translate(150,0)">
-              <circle class="wheelSpin" cx="0" cy="0" r="16" fill="#1f1f1f"/>
-              <circle cx="0" cy="0" r="7" fill="#bfbfbf"/>
-              <path class="wheelSpin"
-                d="M0 -14 V14 M-14 0 H14 M-10 -10 L10 10 M-10 10 L10 -10"
-                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"/>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </div>
-
-  <!-- Left tree -->
-  <div class="tree left" aria-hidden="true">
-    <div class="tree-body">
-      <svg class="star" viewBox="0 0 100 100">
-        <path d="M50 6 L62 38 L96 38 L68 57 L78 90 L50 71 L22 90 L32 57 L4 38 L38 38 Z" fill="var(--gold)"></path>
-      </svg>
-
-      <div class="layer l5"></div>
-      <div class="layer l4"></div>
-      <div class="layer l3"></div>
-      <div class="layer l2"></div>
-      <div class="layer l1"></div>
-      <div class="trunk"></div>
-
-      <div class="garland">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path d="M15 25 Q 50 38 85 25"></path>
-          <path d="M12 45 Q 50 60 88 45"></path>
-          <path d="M10 65 Q 50 82 90 65"></path>
-        </svg>
-
-        <div class="bulbs">
-          <span class="bulb c1" style="left:18%; top:22%; animation-delay:0.0s,0.0s;"></span>
-          <span class="bulb c2" style="left:32%; top:26%; animation-delay:0.2s,0.1s;"></span>
-          <span class="bulb c3" style="left:48%; top:28%; animation-delay:0.4s,0.2s;"></span>
-          <span class="bulb c4" style="left:64%; top:26%; animation-delay:0.6s,0.3s;"></span>
-          <span class="bulb c1" style="left:78%; top:22%; animation-delay:0.8s,0.4s;"></span>
-
-          <span class="bulb c2" style="left:16%; top:44%; animation-delay:0.1s,0.2s;"></span>
-          <span class="bulb c3" style="left:30%; top:49%; animation-delay:0.3s,0.3s;"></span>
-          <span class="bulb c4" style="left:48%; top:52%; animation-delay:0.5s,0.4s;"></span>
-          <span class="bulb c1" style="left:66%; top:49%; animation-delay:0.7s,0.5s;"></span>
-          <span class="bulb c2" style="left:82%; top:44%; animation-delay:0.9s,0.6s;"></span>
-
-          <span class="bulb c3" style="left:14%; top:66%; animation-delay:0.0s,0.3s;"></span>
-          <span class="bulb c4" style="left:30%; top:72%; animation-delay:0.2s,0.4s;"></span>
-          <span class="bulb c1" style="left:50%; top:76%; animation-delay:0.4s,0.5s;"></span>
-          <span class="bulb c2" style="left:70%; top:72%; animation-delay:0.6s,0.6s;"></span>
-          <span class="bulb c3" style="left:86%; top:66%; animation-delay:0.8s,0.7s;"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Right tree -->
-  <div class="tree right" aria-hidden="true">
-    <div class="tree-body">
-      <svg class="star" viewBox="0 0 100 100">
-        <path d="M50 6 L62 38 L96 38 L68 57 L78 90 L50 71 L22 90 L32 57 L4 38 L38 38 Z" fill="var(--gold)"></path>
-      </svg>
-
-      <div class="layer l5"></div>
-      <div class="layer l4"></div>
-      <div class="layer l3"></div>
-      <div class="layer l2"></div>
-      <div class="layer l1"></div>
-      <div class="trunk"></div>
-
-      <div class="garland">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path d="M15 25 Q 50 38 85 25"></path>
-          <path d="M12 45 Q 50 60 88 45"></path>
-          <path d="M10 65 Q 50 82 90 65"></path>
-        </svg>
-
-        <div class="bulbs">
-          <span class="bulb c1" style="left:18%; top:22%; animation-delay:0.15s,0.0s;"></span>
-          <span class="bulb c2" style="left:32%; top:26%; animation-delay:0.35s,0.1s;"></span>
-          <span class="bulb c3" style="left:48%; top:28%; animation-delay:0.55s,0.2s;"></span>
-          <span class="bulb c4" style="left:64%; top:26%; animation-delay:0.75s,0.3s;"></span>
-          <span class="bulb c1" style="left:78%; top:22%; animation-delay:0.95s,0.4s;"></span>
-
-          <span class="bulb c2" style="left:16%; top:44%; animation-delay:0.25s,0.2s;"></span>
-          <span class="bulb c3" style="left:30%; top:49%; animation-delay:0.45s,0.3s;"></span>
-          <span class="bulb c4" style="left:48%; top:52%; animation-delay:0.65s,0.4s;"></span>
-          <span class="bulb c1" style="left:66%; top:49%; animation-delay:0.85s,0.5s;"></span>
-          <span class="bulb c2" style="left:82%; top:44%; animation-delay:1.05s,0.6s;"></span>
-
-          <span class="bulb c3" style="left:14%; top:66%; animation-delay:0.15s,0.3s;"></span>
-          <span class="bulb c4" style="left:30%; top:72%; animation-delay:0.35s,0.4s;"></span>
-          <span class="bulb c1" style="left:50%; top:76%; animation-delay:0.55s,0.5s;"></span>
-          <span class="bulb c2" style="left:70%; top:72%; animation-delay:0.75s,0.6s;"></span>
-          <span class="bulb c3" style="left:86%; top:66%; animation-delay:0.95s,0.7s;"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Center content -->
-  <div class="center">
+  <div class="wrap">
     <div class="card">
-      <h1 class="title">Christmas Clinic Closure</h1>
-      <p class="sub">Counting down to Friday 19th • 5:00 pm</p>
-      <div class="countdown" id="cd">—</div>
+      <div class="content">
+        <h1 class="pop">Happy 18th Birthday Harry</h1>
+        <p class="sub pop delay1"><strong>(For Saturday)</strong></p>
+        <p class="congrats pop delay2">And congratulations for completing your HSC</p>
+        <p class="small pop delay3">Let the party begin</p>
+
+        <!-- Cake with gentle colour variation + fixed flames -->
+        <svg class="cakeWrap pop delay4" viewBox="0 0 800 520" role="img" aria-label="Birthday cake with candles">
+          <defs>
+            <linearGradient id="cakeTop" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#ffffff"/>
+              <stop offset="1" stop-color="#f2f4ff"/>
+            </linearGradient>
+
+            <linearGradient id="cakeSide" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stop-color="#dbe7ff"/>
+              <stop offset="1" stop-color="#f4f8ff"/>
+            </linearGradient>
+
+            <linearGradient id="icing" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#ffffff"/>
+              <stop offset="1" stop-color="#eef2ff"/>
+            </linearGradient>
+
+            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgba(0,0,0,0.16)"/>
+            </filter>
+          </defs>
+
+          <!-- plate -->
+          <ellipse cx="400" cy="470" rx="280" ry="40" fill="rgba(0,0,0,0.055)"/>
+          <ellipse cx="400" cy="458" rx="300" ry="52" fill="rgba(31,79,216,0.08)"/>
+
+          <!-- cake body -->
+          <g filter="url(#softShadow)">
+            <rect x="170" y="200" width="460" height="240" rx="40" fill="url(#cakeSide)" />
+            <rect x="170" y="185" width="460" height="70" rx="35" fill="url(#cakeTop)" />
+            <path d="M205 215
+                     C230 265, 265 235, 290 265
+                     C315 295, 350 245, 375 275
+                     C400 305, 440 250, 470 285
+                     C500 320, 540 255, 565 295
+                     C590 330, 615 275, 635 255
+                     L630 185 L205 185 Z"
+                  fill="url(#icing)" opacity="0.98"/>
+          </g>
+
+          <!-- ribbon accent -->
+          <rect x="170" y="310" width="460" height="44" rx="20" fill="rgba(124, 140, 255, 0.22)"/>
+          <rect x="170" y="320" width="460" height="24" rx="12" fill="rgba(124, 140, 255, 0.30)"/>
+
+          <!-- candles -->
+          <g>
+            <!-- Left candle -->
+            <rect x="290" y="120" width="26" height="90" rx="10" fill="#f8faff"/>
+            <rect x="290" y="160" width="26" height="10" rx="5" fill="rgba(31,79,216,0.12)"/>
+            <rect x="301" y="110" width="4" height="18" rx="2" fill="rgba(0,0,0,0.25)"/>
+            <g transform="translate(303,102)">
+              <g class="flameShape f1">
+                <path d="M0,28 C-10,18 -6,6 0,0 C6,6 10,18 0,28 Z" fill="#ffb703"/>
+                <path d="M0,24 C-6,17 -3,8 0,4 C3,8 6,17 0,24 Z" fill="#ff6b00" opacity="0.9"/>
+              </g>
+            </g>
+
+            <!-- Middle candle -->
+            <rect x="387" y="105" width="26" height="105" rx="10" fill="#f8faff"/>
+            <rect x="387" y="145" width="26" height="10" rx="5" fill="rgba(31,79,216,0.12)"/>
+            <rect x="398" y="95" width="4" height="20" rx="2" fill="rgba(0,0,0,0.25)"/>
+            <g transform="translate(400,86)">
+              <g class="flameShape f2">
+                <path d="M0,30 C-11,20 -7,7 0,0 C7,7 11,20 0,30 Z" fill="#ffb703"/>
+                <path d="M0,26 C-7,18 -4,9 0,4 C4,9 7,18 0,26 Z" fill="#ff6b00" opacity="0.9"/>
+              </g>
+            </g>
+
+            <!-- Right candle -->
+            <rect x="484" y="120" width="26" height="90" rx="10" fill="#f8faff"/>
+            <rect x="484" y="160" width="26" height="10" rx="5" fill="rgba(31,79,216,0.12)"/>
+            <rect x="495" y="110" width="4" height="18" rx="2" fill="rgba(0,0,0,0.25)"/>
+            <g transform="translate(497,102)">
+              <g class="flameShape f3">
+                <path d="M0,28 C-10,18 -6,6 0,0 C6,6 10,18 0,28 Z" fill="#ffb703"/>
+                <path d="M0,24 C-6,17 -3,8 0,4 C3,8 6,17 0,24 Z" fill="#ff6b00" opacity="0.9"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- sprinkles -->
+          <g opacity="0.55">
+            <circle cx="250" cy="250" r="5" fill="rgba(31,79,216,0.20)"/>
+            <circle cx="320" cy="235" r="4" fill="rgba(124, 140, 255,0.22)"/>
+            <circle cx="510" cy="240" r="4" fill="rgba(255,107,0,0.20)"/>
+            <circle cx="560" cy="270" r="5" fill="rgba(0,200,140,0.18)"/>
+            <circle cx="410" cy="240" r="5" fill="rgba(255,183,3,0.18)"/>
+          </g>
+        </svg>
+      </div>
     </div>
   </div>
 
-  <div class="christmasline" id="xmasline">—</div>
-</div>
+  <script>
+    // Confetti (balanced palette) — unchanged working version
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
 
-<script>
-  // Set the closure date/time here:
-  const TARGET = new Date(2025, 11, 19, 17, 0, 0); // Dec=11
+    function resize(){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
 
-  function updateCountdown(){
-    const now = new Date();
-    const diff = TARGET.getTime() - now.getTime();
-    const cd = document.getElementById("cd");
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+    function pick(arr){ return arr[(Math.random() * arr.length) | 0]; }
 
-    if(diff <= 0){
-      cd.textContent = "✅ Closed!";
-      return;
+    const palette = [
+      'rgba(31, 79, 216, 0.22)',   // blue
+      'rgba(124, 140, 255, 0.22)', // lavender
+      'rgba(0, 163, 255, 0.20)',   // sky
+      'rgba(0, 200, 140, 0.20)',   // green
+      'rgba(255, 183, 3, 0.24)',   // gold
+      'rgba(255, 107, 0, 0.22)',   // orange
+      'rgba(120, 120, 140, 0.16)'  // neutral
+    ];
+
+    const confetti = [];
+    const COUNT = 130;
+
+    function makePiece(){
+      const size = rand(6, 14);
+      return {
+        x: rand(0, window.innerWidth),
+        y: rand(-window.innerHeight, 0),
+        w: size,
+        h: rand(8, 18),
+        vy: rand(1.2, 3.0),
+        vx: rand(-0.7, 0.7),
+        rot: rand(0, Math.PI * 2),
+        vr: rand(-0.08, 0.08),
+        color: pick(palette),
+        shape: Math.random() < 0.25 ? 'circle' : 'rect',
+        drift: rand(-0.9, 0.9),
+        wobble: rand(0, Math.PI * 2),
+        wobbleSpeed: rand(0.01, 0.03)
+      };
+    }
+    for (let i=0; i<COUNT; i++) confetti.push(makePiece());
+
+    function drawPiece(p){
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'circle'){
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w * 0.42, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      }
+      ctx.restore();
     }
 
-    const days = Math.floor(diff / (1000*60*60*24));
-    const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-    const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
-    const seconds = Math.floor((diff % (1000*60)) / 1000);
+    let last = performance.now();
+    function tick(now){
+      const dt = Math.min(32, now - last);
+      last = now;
 
-    cd.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  }
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-  function updateDaysUntilChristmas(){
-    const now = new Date();
-    const year = now.getFullYear();
-    let xmas = new Date(year, 11, 25, 0, 0, 0);
-    if(now.getTime() > xmas.getTime()){
-      xmas = new Date(year + 1, 11, 25, 0, 0, 0);
+      for (const p of confetti){
+        p.wobble += p.wobbleSpeed * (dt / 16);
+        const wob = Math.sin(p.wobble) * 0.8;
+
+        p.y += p.vy * (dt / 16);
+        p.x += (p.vx + wob * p.drift) * (dt / 16);
+        p.rot += p.vr * (dt / 16);
+
+        if (p.y > window.innerHeight + 40){
+          p.y = rand(-120, -40);
+          p.x = rand(0, window.innerWidth);
+        }
+        if (p.x < -60) p.x = window.innerWidth + 60;
+        if (p.x > window.innerWidth + 60) p.x = -60;
+
+        drawPiece(p);
+      }
+
+      requestAnimationFrame(tick);
     }
-    const diff = xmas.getTime() - now.getTime();
-    const days = Math.ceil(diff / (1000*60*60*24));
-    document.getElementById("xmasline").textContent = `${days} days until Christmas 🎅`;
-  }
+    requestAnimationFrame(tick);
 
-  // Snow
-  (function makeSnow(){
-    const snow = document.getElementById("snow");
-    const flakes = 80;
-    for(let i=0;i<flakes;i++){
-      const f = document.createElement("div");
-      f.className = "flake";
-      f.textContent = "❄";
-      const size = 10 + Math.random()*12;
-      const left = Math.random()*100;
-      const dur  = 7 + Math.random()*11;
-      const delay= Math.random()*10;
-      f.style.fontSize = size + "px";
-      f.style.left = left + "vw";
-      f.style.animationDuration = dur + "s";
-      f.style.animationDelay = delay + "s";
-      snow.appendChild(f);
+    // gentle random drift for flames (no transform conflicts)
+    (function flameDrift(){
+      const flames = document.querySelectorAll('.flameShape');
+      setInterval(() => {
+        flames.forEach((f) => {
+          f.style.setProperty('--tx', (Math.random() * 2 - 1).toFixed(2) + 'px');
+        });
+      }, 150);
+    })();
+
+    // Balloons (SVG), more frequent (3–6s), no fade at top
+    const balloonLayer = document.getElementById('balloonLayer');
+
+    function balloonSVG(fill1, fill2){
+      const gid = 'g' + Math.random().toString(36).slice(2);
+      return `
+        <svg viewBox="0 0 120 190" width="92" height="125" aria-hidden="true">
+          <defs>
+            <linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="${fill1}"/>
+              <stop offset="1" stop-color="${fill2}"/>
+            </linearGradient>
+          </defs>
+
+          <!-- balloon -->
+          <path d="M60 14
+                   C28 14 12 40 12 68
+                   C12 114 46 140 60 152
+                   C74 140 108 114 108 68
+                   C108 40 92 14 60 14 Z"
+                fill="url(#${gid})"/>
+
+          <!-- highlight -->
+          <path d="M40 34
+                   C28 46 25 62 29 78
+                   C33 66 44 52 56 44
+                   C52 40 46 36 40 34 Z"
+                fill="rgba(255,255,255,0.33)"/>
+
+          <!-- knot -->
+          <path d="M60 152
+                   C56 158 56 162 60 168
+                   C64 162 64 158 60 152 Z"
+                fill="rgba(0,0,0,0.18)"/>
+
+          <!-- string -->
+          <path d="M60 168
+                   C58 176 52 182 46 186"
+                fill="none" stroke="rgba(0,0,0,0.22)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      `;
     }
-  })();
 
-  // Santa flyby: top then bottom, repeating
-  (function sleighLoop(){
-    const flyby = document.getElementById("flyby");
-    let mode = "top";
+    const balloonColors = [
+      ["#2a63ff", "#1842b7"],
+      ["#7c8cff", "#555fda"],
+      ["#00a3ff", "#0076c2"],
+      ["#00c88c", "#008a62"],
+      ["#ffb703", "#d98100"],
+      ["#ff6b00", "#c85400"]
+    ];
 
-    function run(){
-      flyby.classList.remove("fly-top", "fly-bottom");
-      void flyby.offsetWidth; // restart animation
-      flyby.classList.add(mode === "top" ? "fly-top" : "fly-bottom");
+    function spawnBalloon(){
+      const el = document.createElement('div');
+      el.className = 'balloon';
+
+      const [c1, c2] = pick(balloonColors);
+      el.innerHTML = balloonSVG(c1, c2);
+
+      // random across bottom
+      el.style.left = rand(4, 96) + 'vw';
+
+      // drift and duration
+      const drift = rand(-140, 140); // px
+      const dur = rand(7.0, 10.0);   // seconds
+      el.style.setProperty('--drift', drift.toFixed(0) + 'px');
+      el.style.setProperty('--dur', dur.toFixed(2) + 's');
+
+      // rotation variety
+      el.style.setProperty('--r0', rand(-6, -1).toFixed(1) + 'deg');
+      el.style.setProperty('--r1', rand(2, 7).toFixed(1) + 'deg');
+      el.style.setProperty('--r2', rand(-5, 3).toFixed(1) + 'deg');
+
+      // size variation
+      el.style.transform = `scale(${rand(0.88, 1.15).toFixed(2)})`;
+
+      balloonLayer.appendChild(el);
+
+      // cleanup after animation completes
+      setTimeout(() => el.remove(), (dur + 0.6) * 1000);
     }
 
-    flyby.addEventListener("animationend", () => {
-      mode = (mode === "top") ? "bottom" : "top";
-      run();
-    });
 
-    run();
-  })();
 
-  setInterval(updateCountdown, 1000);
-  updateCountdown();
-  updateDaysUntilChristmas();
-  setInterval(updateDaysUntilChristmas, 60*1000);
-</script>
+    function scheduleBalloon(){
+      const next = rand(2000, 4000); // MORE balloons: every 2–4 seconds
+      setTimeout(() => {
+       spawnBalloon();
 
+    // 40% chance of a second balloon at the same time
+       if (Math.random() < 0.4) {
+       setTimeout(spawnBalloon, rand(200, 600));
+     }
+
+    scheduleBalloon();
+  }, next);
+}
+
+
+    setTimeout(scheduleBalloon, 1800);
+  </script>
 </body>
 </html>
